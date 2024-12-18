@@ -2,6 +2,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
+const pokemonRouter = require("./routes/pokemonRoutes")
 
 const app = express();
 const PORT =3000;
@@ -12,6 +13,7 @@ app.use(express.json());
 
 
 //Routes
+app.use("/api/pokemon",pokemonRouter)
 
 //DB Connection
 
