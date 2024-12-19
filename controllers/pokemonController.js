@@ -32,3 +32,64 @@ exports.getPokemonStatus = async(req,res)=>{
         res.status(500).json({error}) 
     }
 }
+
+exports.getPokemonByPokemonId = async (req,res)=>{
+    try { 
+        const pokemon_id = req.params.pokemon_id;
+        let pokemon = await StatusPokemon.findOne({"pokemon_id":pokemon_id})
+        
+        if(!pokemon){
+            res.status(404).json({message:"Pokemon not found"})
+        }else{
+            res.status(200).json(pokemon)
+        }
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({error}) 
+    }
+}
+
+exports.catchPokemonByPokemonId = async (req,res)=>{
+    const pokemon_id = req.params.pokemon_id;
+    const pokemonStatusId=req.body.pokemon_id;
+    if(pokemon_id == pokemonStatusId){
+        try {
+            
+            const pokemonStatusView=req.body.view;
+            const pokemonStatusCatch = req.body.catch
+            let pokemon = await StatusPokemon.findOne({"pokemon_id":pokemon_id})
+            
+            if(!pokemon){
+                return res.status(400).json({message:"Bad request, pokemon not view yet"})
+            }
+            else if (pokemon.view != pokemonStatusView){
+                return res.status(400).json({message:"Bad request, inconsistent data"})
+            }
+
+            else if (pokemon.catch != pokemonStatusCatch){
+                return res.status(400).json({message:"Bad request, inconsistent data"})
+            }
+
+            else if(pokemon.catch){
+                return res.status(200).json(pokemon)
+            }else{
+                
+                pokemon = await StatusPokemon
+                .findOneAndReplace({"pokemon_id":pokemon_id},{
+                    pokemon_id: pokemon_id,
+                    view: true,
+                    catch: true,
+                }, {new:true}
+            )
+
+            return res.status(200).json(pokemon)
+            
+            }
+
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({error})
+        }
+    } else return res.status(400)
+    
+}

@@ -1,1 +1,2 @@
 # pokemon-server
+## Tecnologias
