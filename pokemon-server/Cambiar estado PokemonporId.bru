@@ -1,0 +1,19 @@
+meta {
+  name: Cambiar estado PokemonporId
+  type: http
+  seq: 7
+}
+
+put {
+  url: 127.0.0.1:3000/api/pokemon/catch/2
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "pokemon_id":2,
+    "view": true,
+    "catch": true
+  }
+}

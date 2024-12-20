@@ -90,6 +90,62 @@ exports.catchPokemonByPokemonId = async (req,res)=>{
             console.error(error)
             res.status(500).json({error})
         }
-    } else return res.status(400)
+    } else{
+        return res.status(400).json({message:"bad request, pokemon_id in body diferent pokemon_id in params"})
+    } 
+    
+}
+
+exports.inTeamPokemonByPokemonId = async(req,res)=>{
+    const  pokemon_id = req.params.pokemon_id;
+    const pokemonStatusId=req.body.pokemon_id;
+
+    if(pokemon_id == pokemonStatusId){
+        try {
+
+            const pokemonStatusView=req.body.view;
+            const pokemonStatusCatch = req.body.catch
+            const pokemonStatusInteam = req.body.in_team
+
+            const pokemon = await StatusPokemon.findOne({"pokemon_id":pokemon_id})
+            
+                if(!pokemon){
+                    return res.status(400).json({message:"Bad request, pokemon not view yet"})
+                }
+                else if (pokemon.view != pokemonStatusView){
+                    return res.status(400).json({message:"Bad request, inconsistent data"})
+                }
+    
+                else if (pokemon.catch != pokemonStatusCatch){
+                    return res.status(400).json({message:"Bad request, inconsistent data"})
+                }
+
+                else if (pokemon.in_team != pokemonStatusInteam){
+                    return res.status(400).json({message:"Bad request, inconsistent data"})
+                }
+    
+                // else if(pokemon.in_team){
+                //      return res.status(200).json(pokemon)
+                // }
+
+                else{
+                    
+                    const newPokemon = await StatusPokemon.findOneAndReplace({"pokemon_id":pokemon_id},{
+                    pokemon_id: pokemon_id,
+                    view: true,
+                    catch: true,
+                    in_team:!pokemon.in_team
+                    }, {new:true})
+
+                    return res.status(200).json(newPokemon)
+                }
+                
+        } catch (error) {
+            console.error(error)
+            res.status(500).json({error})
+        }
+    } else{
+        return res.status(400).json({message:"bad request, pokemon_id in body diferent pokemon_id in params"})
+    } 
     
 }
