@@ -1,5 +1,6 @@
 const StatusPokemon = require("../models/pokemonModel")
 const router = require("../routes/pokemonRoutes")
+const {fetchPokemon} = require("../services/fetch")
 
 exports.test = (req,res)=>{
     console.log("hola desde controller")
@@ -36,11 +37,21 @@ exports.getPokemonStatus = async(req,res)=>{
 exports.getPokemonByPokemonId = async (req,res)=>{
     try { 
         const pokemon_id = req.params.pokemon_id;
-        let pokemon = await StatusPokemon.findOne({"pokemon_id":pokemon_id})
+        let statusPokemon = await StatusPokemon.findOne({"pokemon_id":pokemon_id})
         
-        if(!pokemon){
-            res.status(404).json({message:"Pokemon not found"})
+        if(!statusPokemon){
+            let newStatusPokemon ={
+                pokemon_id:pokemon_id,
+                view:false,
+                catch:false,
+                in_team:false
+            }
+
+            pokemon = await fetchPokemon(fetchPokemon,newStatusPokemon)
+            return res.status(200).json(pokemon)
+            // res.status(404).json({message:"Pokemon not found"})
         }else{
+            pokemon = await fetchPokemon(pokemon_id,statusPokemon)
             res.status(200).json(pokemon)
         }
     } catch (error) {
@@ -52,11 +63,14 @@ exports.getPokemonByPokemonId = async (req,res)=>{
 exports.catchPokemonByPokemonId = async (req,res)=>{
     const pokemon_id = req.params.pokemon_id;
     const pokemonStatusId=req.body.pokemon_id;
+    
     if(pokemon_id == pokemonStatusId){
         try {
             
             const pokemonStatusView=req.body.view;
             const pokemonStatusCatch = req.body.catch
+            let statusPokemon = await StatusPokemon.findOne({"pokemon_id":pokemon_id})
+            
             let pokemon = await StatusPokemon.findOne({"pokemon_id":pokemon_id})
             
             if(!pokemon){
